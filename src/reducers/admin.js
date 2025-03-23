@@ -5,9 +5,9 @@ import {
   ADD_USER_ERROR,
   UPDATE_USER_SUCCESS,
   UPDATE_USER_ERROR,
-  APPROVE_USER,
+  APPROVE_USER_SUCCESS,
   APPROVE_USER_ERROR,
-  DELETE_USER,
+  DELETE_USER_SUCCESS,
   DELETE_USER_ERROR,
   CHECK_CURRENT_PASSWORD_SUCCESS,
   CHECK_CURRENT_PASSWORD_ERROR,
@@ -77,7 +77,7 @@ function adminReducer(state = initialState, action) {
         error: payload,
         loading: false,
       };
-    case APPROVE_USER:
+    case APPROVE_USER_SUCCESS:
       return {
         ...state,
         users: state.users.map((user) =>
@@ -91,7 +91,7 @@ function adminReducer(state = initialState, action) {
         error: payload,
         loading: false,
       };
-    case DELETE_USER:
+    case DELETE_USER_SUCCESS:
       return {
         ...state,
         users: state.users.filter((user) => user.UserID !== payload),

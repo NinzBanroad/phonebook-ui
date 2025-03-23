@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import Spinner from '../layout/Spinner';
 import AdminDashboard from './AdminDashboard';
 import UserDashboard from './UserDashboard';
 import Navbar from '../layout/Navbar';
+import Spinner from '../layout/Spinner';
 
 const Dashboard = ({ auth: { user } }) => {
   return (

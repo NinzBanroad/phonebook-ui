@@ -1,27 +1,33 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
+import { connect, useDispatch } from 'react-redux';
+import { CLEAR_USERS } from '../../actions/types';
 import Spinner from '../layout/Spinner';
 import ContactModal from '../layout/ContactModal';
 import {
+  getAllActiveUsers,
   getAllUserContacts,
   updateContact,
   deleteUserContact,
   addContact,
+  sharedContactsWith,
 } from '../../actions/user';
+import ShareContactModal from '../layout/ShareContactModal';
 
 const UserDashboard = ({
   getAllUserContacts,
   addContact,
   updateContact,
   deleteUserContact,
-  user: { contacts },
+  sharedContactsWith,
+  user: { contacts, users },
   auth: { user },
 }) => {
   useEffect(() => {
     getAllUserContacts(user.UserID);
-  }, []);
+  }, [getAllUserContacts, user.UserID]);
 
+  const dispatch = useDispatch();
   const [firstname, setFirstName] = useState('');
   const [lastname, setLastName] = useState('');
   const [contactnumber, setContactNumber] = useState('');
@@ -30,11 +36,20 @@ const UserDashboard = ({
   const [updatedContactPhoto, setUpdatedContactPhoto] = useState(null);
   const [previewContactPhoto, setPreviewContactPhoto] = useState(null);
   const [ContactID, setContactID] = useState('');
+  const [selectedUsers, setSelectedUsers] = useState([]);
   const [isOpenAddContact, setIsOpenAddContactModal] = useState(false);
   const [isOpenUpdateContact, setIsOpenUpdateContactModal] = useState(false);
+  const [isOpenShareContact, setIsOpenShareContactModal] = useState(false);
+
+  const onCloseShareContactModal = () => {
+    dispatch({ type: CLEAR_USERS });
+    setSelectedUsers([]);
+    setIsOpenShareContactModal(false);
+  };
 
   const onCloseAddContactModal = () => {
     setIsOpenAddContactModal(false);
+    setPreviewContactPhoto('');
   };
 
   const onCloseUpdateContactModal = () => {
@@ -44,6 +59,7 @@ const UserDashboard = ({
     setContactNumber('');
     setEmail('');
     setUpdatedContactPhoto('');
+    setPreviewContactPhoto('');
     setIsOpenUpdateContactModal(false);
   };
 
@@ -63,6 +79,21 @@ const UserDashboard = ({
       setUpdatedContactPhoto(e.target.files[0]);
       setPreviewContactPhoto(URL.createObjectURL(file));
     }
+  };
+
+  // will check
+  const handleSharedContactsWith = (userid) => {
+    setSelectedUsers((prevSelected) =>
+      prevSelected.includes(userid)
+        ? prevSelected.filter((id) => id !== userid)
+        : [...prevSelected, userid]
+    );
+  };
+
+  const handleShareContact = (id) => {
+    setContactID(id);
+    dispatch(getAllActiveUsers(id));
+    setIsOpenShareContactModal(true);
   };
 
   // loop the users and check the id then set the value in the Input Field
@@ -92,6 +123,8 @@ const UserDashboard = ({
     if (contactphoto) formData.append('contactphoto', contactphoto);
 
     addContact(user.UserID, formData);
+    setContactPhoto('');
+    setPreviewContactPhoto('');
     setIsOpenAddContactModal(false);
   };
 
@@ -108,7 +141,23 @@ const UserDashboard = ({
       formData.append('contactphoto', updatedContactPhoto);
 
     updateContact(ContactID, formData);
+    setUpdatedContactPhoto('');
+    setPreviewContactPhoto('');
     setIsOpenUpdateContactModal(false);
+  };
+
+  const handleSubmitSelectedUsers = (e) => {
+    e.preventDefault();
+
+    const formData = {
+      UserID: user.UserID,
+      ContactID: ContactID,
+      sharedWith: selectedUsers,
+    };
+    sharedContactsWith(formData);
+    dispatch({ type: CLEAR_USERS });
+    setSelectedUsers([]);
+    setIsOpenShareContactModal(false);
   };
 
   return (
@@ -170,7 +219,7 @@ const UserDashboard = ({
                           {contact.ContactPhoto && (
                             <img
                               className='rounded-full w-10 h-10'
-                              src={require(`../../../../backend/uploads/${contact.ContactPhoto}`)}
+                              src={`https://res.cloudinary.com/dnrytcwn6/image/upload/${contact.ContactPhoto}`}
                               alt='Uploaded'
                             />
                           )}
@@ -179,30 +228,38 @@ const UserDashboard = ({
                         <td className='px-6 py-4'>{contact.Lastname}</td>
                         <td className='px-6 py-4'>{contact.ContactNumber}</td>
                         <td className='px-6 py-4'>{contact.Email}</td>
-                        <td className='px-6 py-4'>
-                          <button
-                            type='button'
-                            className='text-white bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800'
-                          >
-                            Share
-                          </button>
-                          <button
-                            type='button'
-                            onClick={() =>
-                              handleUpdateContact(contact.ContactID)
-                            }
-                            className='text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800'
-                          >
-                            Edit
-                          </button>
-                          <button
-                            type='button'
-                            onClick={() => deleteUserContact(contact.ContactID)}
-                            className='text-white bg-red-700 hover:bg-red-800 focus:outline-none focus:ring-4 focus:ring-red-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900'
-                          >
-                            Delete
-                          </button>
-                        </td>
+                        {user.UserID === contact.UserID ? (
+                          <td className='px-6 py-4'>
+                            <button
+                              onClick={() =>
+                                handleShareContact(contact.ContactID)
+                              }
+                              className='text-white bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800'
+                            >
+                              Share
+                            </button>
+                            <button
+                              type='button'
+                              onClick={() =>
+                                handleUpdateContact(contact.ContactID)
+                              }
+                              className='text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800'
+                            >
+                              Edit
+                            </button>
+                            <button
+                              type='button'
+                              onClick={() =>
+                                deleteUserContact(contact.ContactID)
+                              }
+                              className='text-white bg-red-700 hover:bg-red-800 focus:outline-none focus:ring-4 focus:ring-red-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900'
+                            >
+                              Delete
+                            </button>
+                          </td>
+                        ) : (
+                          <></>
+                        )}
                       </tr>
                     ))}
                   </>
@@ -328,7 +385,7 @@ const UserDashboard = ({
                       className='rounded-full w-20 h-20'
                       src={
                         previewContactPhoto ||
-                        require(`../../../../backend/uploads/${updatedContactPhoto}`)
+                        `https://res.cloudinary.com/dnrytcwn6/image/upload/${updatedContactPhoto}`
                       }
                       alt='Uploaded'
                     />
@@ -426,6 +483,49 @@ const UserDashboard = ({
               </form>
             </div>
           </ContactModal>
+          <ShareContactModal
+            show={isOpenShareContact}
+            onClose={onCloseShareContactModal}
+          >
+            <div className='p-4 md:p-5'>
+              <form onSubmit={handleSubmitSelectedUsers} className='space-y-4'>
+                <div>
+                  <label
+                    htmlFor='contactphoto'
+                    className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
+                  >
+                    Share Contacts With
+                  </label>
+                </div>
+                {users !== null &&
+                  users.map((user) => (
+                    <div key={user.UserID} className='flex items-center mb-4'>
+                      <input
+                        id='default-checkbox'
+                        type='checkbox'
+                        checked={
+                          selectedUsers.includes(user.UserID) || user.isShared
+                        }
+                        onChange={() => handleSharedContactsWith(user.UserID)}
+                        className='w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600'
+                      />
+                      <label
+                        htmlFor='default-checkbox'
+                        className='ms-2 text-sm font-medium text-gray-900 dark:text-gray-300'
+                      >
+                        {user.Email}
+                      </label>
+                    </div>
+                  ))}
+                <button
+                  type='submit'
+                  className='w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800'
+                >
+                  Save
+                </button>
+              </form>
+            </div>
+          </ShareContactModal>
         </>
       )}
     </>
@@ -433,10 +533,12 @@ const UserDashboard = ({
 };
 
 UserDashboard.propTypes = {
+  getAllActiveUsers: PropTypes.func.isRequired,
   getAllUserContacts: PropTypes.func.isRequired,
   addContact: PropTypes.func.isRequired,
   updateContact: PropTypes.func.isRequired,
   deleteUserContact: PropTypes.func.isRequired,
+  sharedContactsWith: PropTypes.func.isRequired,
   user: PropTypes.object.isRequired,
   auth: PropTypes.object.isRequired,
 };
@@ -447,8 +549,10 @@ const mapStateToProps = (state) => ({
 });
 
 export default connect(mapStateToProps, {
+  getAllActiveUsers,
   getAllUserContacts,
   addContact,
   updateContact,
   deleteUserContact,
+  sharedContactsWith,
 })(UserDashboard);

@@ -100,6 +100,7 @@ export const signin = (email, password) => async (dispatch) => {
       payload: res.data,
     });
 
+    dispatch(setAlert(res.data.msg, 'success'));
     dispatch(loadUser());
   } catch (err) {
     const errors = err.response.data.errors;
@@ -110,7 +111,9 @@ export const signin = (email, password) => async (dispatch) => {
 
     dispatch({
       type: SIGNIN_FAIL,
+      payload: errors[0].msg,
     });
+    dispatch(setAlert(errors[0].msg, 'error'));
   }
 };
 

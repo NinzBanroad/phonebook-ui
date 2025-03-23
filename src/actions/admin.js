@@ -1,4 +1,5 @@
 import api from '../utils/api';
+import { setAlert } from './alert';
 import {
   GET_ALL_USERS,
   GET_ALL_USERS_ERROR,
@@ -8,9 +9,9 @@ import {
   ADD_USER_ERROR,
   UPDATE_USER_SUCCESS,
   UPDATE_USER_ERROR,
-  APPROVE_USER,
+  APPROVE_USER_SUCCESS,
   APPROVE_USER_ERROR,
-  DELETE_USER,
+  DELETE_USER_SUCCESS,
   DELETE_USER_ERROR,
 } from './types';
 
@@ -68,7 +69,7 @@ export const approveUser = (UserID, status) => async (dispatch) => {
     });
 
     dispatch({
-      type: APPROVE_USER,
+      type: APPROVE_USER_SUCCESS,
       payload: { UserID, user: res.data },
     });
   } catch (err) {
@@ -126,7 +127,7 @@ export const deleteUser = (UserID) => async (dispatch) => {
     await api.delete(`/admin/delete-user/${UserID}`);
 
     dispatch({
-      type: DELETE_USER,
+      type: DELETE_USER_SUCCESS,
       payload: UserID,
     });
   } catch (err) {

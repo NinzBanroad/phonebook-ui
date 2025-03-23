@@ -4,7 +4,10 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { signin } from '../../actions/auth';
 
-const Signin = ({ signin, auth: { isAuthenticated, isStatusPending } }) => {
+const Signin = ({
+  signin,
+  auth: { isAuthenticated, isStatusPending, error },
+}) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -17,7 +20,7 @@ const Signin = ({ signin, auth: { isAuthenticated, isStatusPending } }) => {
     return <Navigate to='/dashboard' />;
   }
 
-  if (isStatusPending) {
+  if (error === 'Please wait for Admin Approval') {
     return <Navigate to='/for-admin-approval' />;
   }
 

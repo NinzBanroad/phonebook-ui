@@ -20,6 +20,7 @@ const initialState = {
   msg: '',
   loading: true,
   user: null,
+  error: {},
 };
 
 function authReducer(state = initialState, action) {
