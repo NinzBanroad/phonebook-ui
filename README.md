@@ -7,8 +7,8 @@ Email: admin@gmail.com
 Pass: 123456
 
 LIST OF USERS:
-Email: user@gmail.com
+Email: user1@gmail.com
 Pass: 123456
 
-Email: user1@gmail.com
+Email: user2@gmail.com
 Pass: 123456
