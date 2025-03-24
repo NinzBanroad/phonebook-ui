@@ -46,11 +46,11 @@ const App = () => {
         <Alert />
         <Routes>
           <Route path='/' element={<Signin />} />
-          <Route path='sign-up' element={<Signup />} />
-          <Route path='for-admin-approval' element={<ForAdminApproval />} />
-          <Route path='forgot-password' element={<ForgotPassword />} />
+          <Route path='/sign-up' element={<Signup />} />
+          <Route path='/for-admin-approval' element={<ForAdminApproval />} />
+          <Route path='/forgot-password' element={<ForgotPassword />} />
           <Route
-            path='dashboard'
+            path='/dashboard'
             element={<PrivateRoute component={Dashboard} />}
           />
           <Route path='*' element={<NotFound />} />
