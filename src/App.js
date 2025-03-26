@@ -8,7 +8,7 @@ import Signup from './components/auth/Signup';
 import Dashboard from './components/dashboard/Dashboard';
 import ForAdminApproval from './components/auth/ForAdminApproval';
 import ForgotPassword from './components/auth/ForgotPassword';
-import NotFound from './components/layout/Navbar';
+import NotFound from './components/layout/NotFound';
 import Alert from './components/layout/Alert';
 
 //Private Route
