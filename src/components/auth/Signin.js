@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 import { Navigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -28,7 +29,12 @@ const Signin = ({
     <>
       <div className='flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8'>
         <div className='sm:mx-auto sm:w-full sm:max-w-sm'>
-          <h2 className='mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900'>
+          <img
+            alt='NB Phonebook'
+            src='https://res.cloudinary.com/dnrytcwn6/image/upload/v1743053610/nb-phonebook-logo-no-background_ohlp6c.png'
+            className='mx-auto h-20 w-auto mt-5'
+          />
+          <h2 className='mt-5 text-center text-2xl/9 font-bold tracking-tight text-gray-900'>
             Sign in to your account
           </h2>
         </div>

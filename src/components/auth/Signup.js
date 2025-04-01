@@ -8,11 +8,24 @@ const Signup = ({ signup, auth: { isAuthenticated, isStatusPending } }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [password2, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
+  const [isValid, setIsValid] = useState(false);
+
+  const handleConfirPassword = (e) => {
+    if (password !== e.target.value) {
+      setError('Passwords do not match');
+      setIsValid(false);
+    } else {
+      setError('Passwords match');
+      setConfirmPassword(e.target.value);
+      setIsValid(true);
+    }
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (password !== password2) {
-      alert('Passwords do not match!');
+      setError('Passwords do not match');
     } else {
       signup(email, password);
     }
@@ -28,7 +41,12 @@ const Signup = ({ signup, auth: { isAuthenticated, isStatusPending } }) => {
     <>
       <div className='flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8'>
         <div className='sm:mx-auto sm:w-full sm:max-w-sm'>
-          <h2 className='mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900'>
+          <img
+            alt='NB Phonebook'
+            src='https://res.cloudinary.com/dnrytcwn6/image/upload/v1743053610/nb-phonebook-logo-no-background_ohlp6c.png'
+            className='mx-auto h-20 w-auto mt-5'
+          />
+          <h2 className='mt-5 text-center text-2xl/9 font-bold tracking-tight text-gray-900'>
             Sign up to create account
           </h2>
         </div>
@@ -89,13 +107,19 @@ const Signup = ({ signup, auth: { isAuthenticated, isStatusPending } }) => {
                   name='password2'
                   type='password'
                   required
-                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  onChange={handleConfirPassword}
                   placeholder='••••••'
                   className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white'
                 />
               </div>
             </div>
-
+            <p
+              className={`${
+                isValid ? 'text-xs text-green-500' : 'text-xs text-red-500'
+              }`}
+            >
+              {error}
+            </p>
             <div>
               <button
                 type='submit'

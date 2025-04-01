@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect, useDispatch } from 'react-redux';
-import { CLEAR_USERS } from '../../actions/types';
+import {
+  CLEAR_USERS,
+  RESET_SHARED_CONTACTS_WITH,
+  RESET_UPDATE_CONTACT,
+} from '../../actions/types';
 import Spinner from '../layout/Spinner';
 import ContactModal from '../layout/ContactModal';
 import {
@@ -20,13 +24,9 @@ const UserDashboard = ({
   updateContact,
   deleteUserContact,
   sharedContactsWith,
-  user: { contacts, users },
+  user: { contacts, users, contact_updated, shared_contacts_with_updated },
   auth: { user },
 }) => {
-  useEffect(() => {
-    getAllUserContacts(user.UserID);
-  }, [getAllUserContacts, user.UserID]);
-
   const dispatch = useDispatch();
   const [firstname, setFirstName] = useState('');
   const [lastname, setLastName] = useState('');
@@ -41,6 +41,34 @@ const UserDashboard = ({
   const [isOpenUpdateContact, setIsOpenUpdateContactModal] = useState(false);
   const [isOpenShareContact, setIsOpenShareContactModal] = useState(false);
 
+  // Fetch all user contacts when the component mounts
+  useEffect(() => {
+    getAllUserContacts(user.UserID);
+  }, [getAllUserContacts, user.UserID]);
+
+  useEffect(() => {
+    if (contact_updated) {
+      getAllUserContacts(user.UserID); // Trigger when contact is updated
+      dispatch({ type: RESET_UPDATE_CONTACT }); // Reset flag after fetching
+    }
+  }, [getAllUserContacts, user.UserID, contact_updated, dispatch]);
+
+  useEffect(() => {
+    if (shared_contacts_with_updated) {
+      getAllUserContacts(user.UserID); // Trigger when shared contacts with are updated
+      dispatch({ type: RESET_SHARED_CONTACTS_WITH }); // Reset flag after fetching
+    }
+  }, [getAllUserContacts, user.UserID, shared_contacts_with_updated, dispatch]);
+
+  // will filter the users who are already shared with the contact
+  useEffect(() => {
+    if (users && users.length > 0) {
+      setSelectedUsers(
+        users.filter((user) => user.isShared).map((user) => user.UserID)
+      );
+    }
+  }, [users]);
+
   const onCloseShareContactModal = () => {
     dispatch({ type: CLEAR_USERS });
     setSelectedUsers([]);
@@ -48,6 +76,7 @@ const UserDashboard = ({
   };
 
   const onCloseAddContactModal = () => {
+    setContactNumber('');
     setIsOpenAddContactModal(false);
     setPreviewContactPhoto('');
   };
@@ -81,8 +110,8 @@ const UserDashboard = ({
     }
   };
 
-  // will check
   const handleSharedContactsWith = (userid) => {
+    // Toggle the selectedUsers array
     setSelectedUsers((prevSelected) =>
       prevSelected.includes(userid)
         ? prevSelected.filter((id) => id !== userid)
@@ -123,6 +152,7 @@ const UserDashboard = ({
     if (contactphoto) formData.append('contactphoto', contactphoto);
 
     addContact(user.UserID, formData);
+    setContactNumber('');
     setContactPhoto('');
     setPreviewContactPhoto('');
     setIsOpenAddContactModal(false);
@@ -141,6 +171,7 @@ const UserDashboard = ({
       formData.append('contactphoto', updatedContactPhoto);
 
     updateContact(ContactID, formData);
+    setContactNumber('');
     setUpdatedContactPhoto('');
     setPreviewContactPhoto('');
     setIsOpenUpdateContactModal(false);
@@ -154,6 +185,7 @@ const UserDashboard = ({
       ContactID: ContactID,
       sharedWith: selectedUsers,
     };
+
     sharedContactsWith(formData);
     dispatch({ type: CLEAR_USERS });
     setSelectedUsers([]);
@@ -193,6 +225,10 @@ const UserDashboard = ({
                     Email Address
                   </th>
                   <th scope='col' className='px-6 py-3'>
+                    # of Users you <br />
+                    shared this contact with
+                  </th>
+                  <th scope='col' className='px-6 py-3'>
                     Actions
                   </th>
                 </tr>
@@ -203,9 +239,11 @@ const UserDashboard = ({
                     <tr>
                       <td></td>
                       <td></td>
-                      <td className='px-6 py-10 text-center'>
-                        NO AVAILABLE CONTACTS
-                      </td>
+                      <td></td>
+                      <td className='pt-5'>NO AVAILABLE CONTACTS </td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
                     </tr>
                   </>
                 ) : (
@@ -228,6 +266,13 @@ const UserDashboard = ({
                         <td className='px-6 py-4'>{contact.Lastname}</td>
                         <td className='px-6 py-4'>{contact.ContactNumber}</td>
                         <td className='px-6 py-4'>{contact.Email}</td>
+                        <td className='px-6 py-4'>
+                          {!contact.sharedWith
+                            ? user.UserID === contact.UserID
+                              ? 0
+                              : ''
+                            : contact.sharedWith.length}
+                        </td>
                         {user.UserID === contact.UserID ? (
                           <td className='px-6 py-4'>
                             <button
@@ -331,19 +376,32 @@ const UserDashboard = ({
                     required
                   />
                 </div>
-                <div>
+                <div className='relative'>
                   <label
                     htmlFor='contactnumber'
                     className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
                   >
                     Contact Number
                   </label>
+                  <p className='absolute text-sm pt-2 items-center justify-center pl-2 text-slate-700'>
+                    +63
+                  </p>
                   <input
                     type='number'
                     name='contactnumber'
-                    placeholder=''
-                    onChange={(e) => setContactNumber(e.target.value)}
-                    className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white'
+                    placeholder='+639123456789'
+                    value={contactnumber}
+                    onChange={(e) => {
+                      // Allow only numbers, ensure the first digit is not 0, and limit to 10 digits
+                      if (
+                        (/^[1-9][0-9]*$/.test(e.target.value) ||
+                          e.target.value === '') &&
+                        e.target.value.length <= 10
+                      ) {
+                        setContactNumber(e.target.value);
+                      }
+                    }}
+                    className='w-full bg-transparent text-sm placeholder:text-slate-400 text-slate-700 border border-slate-200 rounded-md pl-10 pr-20 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
                     required
                   />
                 </div>
@@ -440,20 +498,32 @@ const UserDashboard = ({
                     required
                   />
                 </div>
-                <div>
+                <div class='relative'>
                   <label
                     htmlFor='contactnumber'
                     className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
                   >
                     Contact Number
                   </label>
+                  <p class='absolute text-sm pt-2 items-center justify-center pl-2 text-slate-700'>
+                    +63
+                  </p>
                   <input
                     type='number'
                     name='contactnumber'
-                    placeholder=''
+                    placeholder='+639123456789'
                     value={contactnumber}
-                    onChange={(e) => setContactNumber(e.target.value)}
-                    className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white'
+                    onChange={(e) => {
+                      // Allow only numbers, ensure the first digit is not 0, and limit to 10 digits
+                      if (
+                        (/^[1-9][0-9]*$/.test(e.target.value) ||
+                          e.target.value === '') &&
+                        e.target.value.length <= 10
+                      ) {
+                        setContactNumber(e.target.value);
+                      }
+                    }}
+                    className='w-full bg-transparent text-sm placeholder:text-slate-400 text-slate-700 border border-slate-200 rounded-md pl-10 pr-20 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
                     required
                   />
                 </div>
@@ -497,20 +567,18 @@ const UserDashboard = ({
                     Share Contacts With
                   </label>
                 </div>
-                {users !== null &&
+                {users &&
                   users.map((user) => (
                     <div key={user.UserID} className='flex items-center mb-4'>
                       <input
-                        id='default-checkbox'
+                        id={`checkbox-${user.UserID}`} // Unique id for each checkbox
                         type='checkbox'
-                        checked={
-                          selectedUsers.includes(user.UserID) || user.isShared
-                        }
+                        checked={selectedUsers.includes(user.UserID)}
                         onChange={() => handleSharedContactsWith(user.UserID)}
                         className='w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600'
                       />
                       <label
-                        htmlFor='default-checkbox'
+                        htmlFor={`checkbox-${user.UserID}`} // Match the id of the input
                         className='ms-2 text-sm font-medium text-gray-900 dark:text-gray-300'
                       >
                         {user.Email}

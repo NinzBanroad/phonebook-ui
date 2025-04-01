@@ -4,12 +4,16 @@ import {
   ADD_CONTACT_SUCCESS,
   ADD_CONTACT_ERROR,
   UPDATE_CONTACT_SUCCESS,
+  CONTACT_UPDATED,
+  RESET_UPDATE_CONTACT,
   UPDATE_CONTACT_ERROR,
   DELETE_USER_CONTACT_SUCCESS,
   DELETE_USER_CONTACT_ERROR,
   GET_ALL_ACTIVE_USERS,
   GET_ALL_ACTIVE_USERS_ERROR,
   SHARED_CONTACTS_WITH_SUCCESS,
+  SHARED_CONTACTS_WITH_UPDATED,
+  RESET_SHARED_CONTACTS_WITH,
   SHARED_CONTACTS_WITH_ERROR,
   CLEAR_CONTACTS,
   CLEAR_USERS,
@@ -20,6 +24,8 @@ const initialState = {
   contacts: null,
   users: null,
   error: {},
+  contact_updated: false,
+  shared_contacts_with_updated: false,
 };
 
 function userReducer(state = initialState, action) {
@@ -67,12 +73,24 @@ function userReducer(state = initialState, action) {
         ...state,
         msg: payload,
         loading: false,
+        shared_contacts_with_updated: true,
+      };
+    case SHARED_CONTACTS_WITH_UPDATED:
+      return {
+        ...state,
+        shared_contacts_with_updated: true,
+      };
+    case RESET_SHARED_CONTACTS_WITH:
+      return {
+        ...state,
+        shared_contacts_with_updated: false,
       };
     case SHARED_CONTACTS_WITH_ERROR:
       return {
         ...state,
         msg: payload,
         loading: false,
+        shared_contacts_with_updated: false,
       };
     case UPDATE_CONTACT_SUCCESS:
       return {
@@ -81,12 +99,24 @@ function userReducer(state = initialState, action) {
           contact.ContactID === payload.ContactID ? payload.contact : contact
         ),
         loading: false,
+        contact_updated: true,
+      };
+    case CONTACT_UPDATED:
+      return {
+        ...state,
+        contact_updated: true,
+      };
+    case RESET_UPDATE_CONTACT:
+      return {
+        ...state,
+        contact_updated: false,
       };
     case UPDATE_CONTACT_ERROR:
       return {
         ...state,
         error: payload,
         loading: false,
+        contact_updated: false,
       };
     case DELETE_USER_CONTACT_SUCCESS:
       return {

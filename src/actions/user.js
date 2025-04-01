@@ -1,5 +1,5 @@
 import api from '../utils/api';
-import { setAlert } from './alert';
+import { toast } from 'react-toastify';
 import {
   GET_ALL_USER_CONTACTS,
   GET_ALL_USER_CONTACTS_ERROR,
@@ -8,10 +8,12 @@ import {
   ADD_CONTACT_SUCCESS,
   ADD_CONTACT_ERROR,
   UPDATE_CONTACT_SUCCESS,
+  CONTACT_UPDATED,
   UPDATE_CONTACT_ERROR,
   DELETE_USER_CONTACT_SUCCESS,
   DELETE_USER_CONTACT_ERROR,
   SHARED_CONTACTS_WITH_SUCCESS,
+  SHARED_CONTACTS_WITH_UPDATED,
   SHARED_CONTACTS_WITH_ERROR,
   CLEAR_CONTACTS,
 } from './types';
@@ -60,12 +62,14 @@ export const getAllUserContacts = (UserID) => async (dispatch) => {
 export const sharedContactsWith = (formData) => async (dispatch) => {
   try {
     const res = await api.post('/user/share-contacts-with', formData);
-
     dispatch({
       type: SHARED_CONTACTS_WITH_SUCCESS,
       payload: res.data,
     });
-    dispatch(setAlert(res.data.msg, 'success'));
+    toast.success(res.data.msg, {
+      position: 'top-right',
+    });
+    dispatch({ type: SHARED_CONTACTS_WITH_UPDATED });
   } catch (err) {
     const errors = err.response.data.errors;
 
@@ -75,7 +79,9 @@ export const sharedContactsWith = (formData) => async (dispatch) => {
     dispatch({
       type: SHARED_CONTACTS_WITH_ERROR,
     });
-    dispatch(setAlert(errors[0].msg, 'error'));
+    toast.error(errors[0].msg, {
+      position: 'top-right',
+    });
   }
 };
 
@@ -88,7 +94,9 @@ export const addContact = (UserID, formData) => async (dispatch) => {
       type: ADD_CONTACT_SUCCESS,
       payload: res.data.contact,
     });
-    dispatch(setAlert(res.data.msg, 'success'));
+    toast.success(res.data.msg, {
+      position: 'top-right',
+    });
   } catch (err) {
     const errors = err.response.data.errors;
 
@@ -99,7 +107,9 @@ export const addContact = (UserID, formData) => async (dispatch) => {
     dispatch({
       type: ADD_CONTACT_ERROR,
     });
-    dispatch(setAlert(errors[0].msg, 'error'));
+    toast.error(errors[0].msg, {
+      position: 'top-right',
+    });
   }
 };
 
@@ -107,12 +117,14 @@ export const addContact = (UserID, formData) => async (dispatch) => {
 export const updateContact = (ContactID, formData) => async (dispatch) => {
   try {
     const res = await api.put(`/user/update-contact/${ContactID}`, formData);
-
     dispatch({
       type: UPDATE_CONTACT_SUCCESS,
       payload: { ContactID, contact: res.data.contact },
     });
-    dispatch(setAlert(res.data.msg, 'success'));
+    toast.success(res.data.msg, {
+      position: 'top-right',
+    });
+    dispatch({ type: CONTACT_UPDATED });
   } catch (err) {
     const errors = err.response.data.errors;
 
@@ -122,7 +134,9 @@ export const updateContact = (ContactID, formData) => async (dispatch) => {
     dispatch({
       type: UPDATE_CONTACT_ERROR,
     });
-    dispatch(setAlert(errors[0].msg, 'error'));
+    toast.error(errors[0].msg, {
+      position: 'top-right',
+    });
   }
 };
 
@@ -135,7 +149,9 @@ export const deleteUserContact = (ContactID) => async (dispatch) => {
       type: DELETE_USER_CONTACT_SUCCESS,
       payload: ContactID,
     });
-    dispatch(setAlert(res.data.msg, 'success'));
+    toast.success(res.data.msg, {
+      position: 'top-right',
+    });
   } catch (err) {
     const errors = err.response.data.errors;
 
@@ -145,6 +161,8 @@ export const deleteUserContact = (ContactID) => async (dispatch) => {
     dispatch({
       type: DELETE_USER_CONTACT_ERROR,
     });
-    dispatch(setAlert(errors[0].msg, 'error'));
+    toast.error(errors[0].msg, {
+      position: 'top-right',
+    });
   }
 };

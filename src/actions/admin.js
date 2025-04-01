@@ -1,5 +1,5 @@
 import api from '../utils/api';
-import { setAlert } from './alert';
+import { toast } from 'react-toastify';
 import {
   GET_ALL_USERS,
   GET_ALL_USERS_ERROR,
@@ -50,10 +50,6 @@ export const checkCurrentPassword = (UserID, password) => async (dispatch) => {
   } catch (err) {
     const errors = err.response.data.errors;
 
-    if (errors) {
-      errors.forEach((error) => console.log(error));
-    }
-
     dispatch({
       type: CHECK_CURRENT_PASSWORD_ERROR,
       payload: errors[0].msg,
@@ -70,12 +66,20 @@ export const approveUser = (UserID, status) => async (dispatch) => {
 
     dispatch({
       type: APPROVE_USER_SUCCESS,
-      payload: { UserID, user: res.data },
+      payload: { UserID, user: res.data.user },
+    });
+    toast.success(res.data.msg, {
+      position: 'top-right',
     });
   } catch (err) {
+    const errors = err.response.data.errors;
+
     dispatch({
       type: APPROVE_USER_ERROR,
-      payload: { msg: err.response.statusText, status: err.response.status },
+    });
+
+    toast.error(errors[0].msg, {
+      position: 'top-right',
     });
   }
 };
@@ -91,15 +95,18 @@ export const addUser = (email, password) => async (dispatch) => {
       type: ADD_USER_SUCCESS,
       payload: res.data.user,
     });
+    toast.success(res.data.msg, {
+      position: 'top-right',
+    });
   } catch (err) {
     const errors = err.response.data.errors;
 
-    if (errors) {
-      errors.forEach((error) => console.log(error));
-    }
-
     dispatch({
       type: ADD_USER_ERROR,
+    });
+
+    toast.error(errors[0].msg, {
+      position: 'top-right',
     });
   }
 };
@@ -111,12 +118,20 @@ export const updateUser = (UserID, formData) => async (dispatch) => {
 
     dispatch({
       type: UPDATE_USER_SUCCESS,
-      payload: { UserID, user: res.data },
+      payload: { UserID, user: res.data.user },
+    });
+    toast.success(res.data.msg, {
+      position: 'top-right',
     });
   } catch (err) {
+    const errors = err.response.data.errors;
+
     dispatch({
       type: UPDATE_USER_ERROR,
-      payload: { msg: err.response.statusText, status: err.response.status },
+    });
+
+    toast.error(errors[0].msg, {
+      position: 'top-right',
     });
   }
 };
@@ -124,16 +139,24 @@ export const updateUser = (UserID, formData) => async (dispatch) => {
 // Delete User
 export const deleteUser = (UserID) => async (dispatch) => {
   try {
-    await api.delete(`/admin/delete-user/${UserID}`);
+    const res = await api.delete(`/admin/delete-user/${UserID}`);
 
     dispatch({
       type: DELETE_USER_SUCCESS,
       payload: UserID,
     });
+    toast.success(res.data.msg, {
+      position: 'top-right',
+    });
   } catch (err) {
+    const errors = err.response.data.errors;
+
     dispatch({
       type: DELETE_USER_ERROR,
-      payload: { msg: err.response.statusText, status: err.response.status },
+    });
+
+    toast.error(errors[0].msg, {
+      position: 'top-right',
     });
   }
 };

@@ -1,5 +1,5 @@
 import api from '../utils/api';
-import { setAlert } from './alert';
+import { toast } from 'react-toastify';
 import {
   USER_LOADED,
   SIGNIN_SUCCESS,
@@ -47,20 +47,20 @@ export const verifyEmail = (email) => async (dispatch) => {
       payload: res.data.msg,
     });
 
-    dispatch(setAlert(res.data.msg, 'success'));
+    toast.success(res.data.msg, {
+      position: 'top-right',
+    });
   } catch (err) {
     const errors = err.response.data.errors;
-
-    if (errors) {
-      errors.forEach((error) => console.log(error));
-    }
 
     dispatch({
       type: VERIFY_EMAIL_ERROR,
       payload: errors[0].msg,
     });
 
-    dispatch(setAlert(errors[0].msg, 'error'));
+    toast.error(errors[0].msg, {
+      position: 'top-right',
+    });
   }
 };
 
@@ -75,16 +75,18 @@ export const changePassword = (email, password) => async (dispatch) => {
       payload: res.data,
     });
 
+    toast.success(res.data.msg, {
+      position: 'top-right',
+    });
     dispatch(loadUser());
   } catch (err) {
     const errors = err.response.data.errors;
 
-    if (errors) {
-      errors.forEach((error) => console.log(error));
-    }
-
     dispatch({
       type: CHANGE_PASSWORD_ERROR,
+    });
+    toast.error(errors[0].msg, {
+      position: 'top-right',
     });
   }
 };
@@ -100,20 +102,20 @@ export const signin = (email, password) => async (dispatch) => {
       payload: res.data,
     });
 
-    dispatch(setAlert(res.data.msg, 'success'));
+    toast.success(res.data.msg, {
+      position: 'top-right',
+    });
     dispatch(loadUser());
   } catch (err) {
     const errors = err.response.data.errors;
-
-    if (errors) {
-      errors.forEach((error) => console.log(error));
-    }
 
     dispatch({
       type: SIGNIN_FAIL,
       payload: errors[0].msg,
     });
-    dispatch(setAlert(errors[0].msg, 'error'));
+    toast.error(errors[0].msg, {
+      position: 'top-right',
+    });
   }
 };
 
@@ -121,23 +123,32 @@ export const signin = (email, password) => async (dispatch) => {
 export const signup = (email, password) => async (dispatch) => {
   const body = { email, password };
   try {
-    await api.post('/auth/sign-up', body);
+    const res = await api.post('/auth/sign-up', body);
 
     dispatch({
       type: SIGNUP_SUCCESS,
     });
+    toast.success(res.data.msg, {
+      position: 'top-right',
+    });
   } catch (err) {
     const errors = err.response.data.errors;
 
-    if (errors) {
-      errors.forEach((error) => console.log(error));
-    }
-
     dispatch({
       type: SIGNUP_FAIL,
+    });
+    toast.error(errors[0].msg, {
+      position: 'top-right',
     });
   }
 };
 
 // Logout
-export const logout = () => ({ type: LOGOUT });
+export const logout = () => async (dispatch) => {
+  dispatch({
+    type: LOGOUT,
+  });
+  toast.success('Logout Successful', {
+    position: 'top-right',
+  });
+};

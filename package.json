@@ -14,6 +14,7 @@
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.3.0",
     "react-scripts": "5.0.1",
+    "react-toastify": "^11.0.5",
     "redux": "^5.0.1",
     "redux-thunk": "^3.1.0",
     "uuid": "^11.1.0",
@@ -48,5 +49,5 @@
     "postcss": "^8.5.3",
     "tailwindcss": "^3.4.17"
   },
-  "proxy": "https://phonebook-api-4cuk.onrender.com"
+  "proxy": "http://localhost:5000/"
 }

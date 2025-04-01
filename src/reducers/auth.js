@@ -39,6 +39,7 @@ function authReducer(state = initialState, action) {
         ...state,
         ...payload,
         isAuthenticated: true,
+        msg: payload.msg,
         loading: false,
       };
     case SIGNIN_FAIL:
@@ -94,6 +95,7 @@ function authReducer(state = initialState, action) {
     case LOGOUT:
       return {
         ...state,
+        ...payload,
         token: null,
         isAuthenticated: false,
         loading: false,

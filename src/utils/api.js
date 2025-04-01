@@ -4,8 +4,8 @@ import { LOGOUT } from '../actions/types';
 
 // Create an instance of axios
 const api = axios.create({
-  baseURL: 'https://phonebook-api-4cuk.onrender.com/api',
-  withCredentials: true,
+  // baseURL: 'https://phonebook-api-4cuk.onrender.com/api',
+  baseURL: 'http://localhost:5000/api',
 });
 
 // Request interceptor for adding token to headers and configuring content type

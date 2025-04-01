@@ -1,6 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 const UserModal = ({ show, onClose, children }) => {
+  useEffect(() => {
+    if (show) document.body.style.overflow = 'hidden';
+    else document.body.style.overflow = 'visible';
+  }, [show]);
+
   if (!show) {
     return null;
   }

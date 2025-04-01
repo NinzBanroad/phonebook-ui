@@ -24,11 +24,11 @@ const Navbar = ({ auth: { isAuthenticated, user }, logout }) => {
             className='flex items-center space-x-3 rtl:space-x-reverse'
           >
             <img
-              src='https://flowbite.com/docs/images/logo.svg'
-              className='h-8'
-              alt='Flowbite Logo'
+              src='https://res.cloudinary.com/dnrytcwn6/image/upload/v1743053610/nb-phonebook-logo-no-background_ohlp6c.png'
+              className='h-12 w-auto'
+              alt='NB Phonebook Logo'
             />
-            <span className='self-center text-2xl font-semibold whitespace-nowrap dark:text-white'>
+            <span className='self-center text-xl font-semibold whitespace-nowrap dark:text-white'>
               {user && user.isAdmin === 1
                 ? 'ADMIN DASHBOARD'
                 : 'USER DASHBOARD'}
@@ -36,7 +36,7 @@ const Navbar = ({ auth: { isAuthenticated, user }, logout }) => {
           </a>
           <div className='flex space-x-3 rtl:space-x-reverse'>
             <span className='self-center text-2xl font-semibold whitespace-nowrap dark:text-white mb-1'>
-              {user && `Welcome back ${name.join('')}!`}
+              {user && name.join('')}
             </span>
             <button
               type='button'

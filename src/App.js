@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { LOGOUT } from './actions/types';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 //components
 import Signin from './components/auth/Signin';
@@ -9,7 +11,6 @@ import Dashboard from './components/dashboard/Dashboard';
 import ForAdminApproval from './components/auth/ForAdminApproval';
 import ForgotPassword from './components/auth/ForgotPassword';
 import NotFound from './components/layout/NotFound';
-import Alert from './components/layout/Alert';
 
 //Private Route
 import PrivateRoute from './components/routing/PrivateRoute';
@@ -43,7 +44,7 @@ const App = () => {
   return (
     <Provider store={store}>
       <Router>
-        <Alert />
+        <ToastContainer />
         <Routes>
           <Route path='/' element={<Signin />} />
           <Route path='/sign-up' element={<Signup />} />
